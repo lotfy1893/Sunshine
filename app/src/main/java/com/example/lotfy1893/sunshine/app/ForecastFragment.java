@@ -1,9 +1,11 @@
 package com.example.lotfy1893.sunshine.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -29,7 +31,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by lotfy1893 on 3/9/15.
@@ -37,6 +38,7 @@ import java.util.Arrays;
 public class ForecastFragment extends Fragment {
 
     private  ArrayAdapter<String> mForecastAdapter;
+    private String LOG_ALL ="";
     public ForecastFragment() {
 
 
@@ -60,12 +62,15 @@ public class ForecastFragment extends Fragment {
 
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            FetchWeatherTask weatherTask = new FetchWeatherTask();
-            weatherTask.execute("94043");
+           updateWeather();
             return true ;
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+
+
 
 
     @Override
@@ -74,19 +79,15 @@ public class ForecastFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
 
-        String [] foreCast = { "Today - Sunny - 88/63",
-                "Tomorrow - Foggy - 70/40",
-                "Wednesday - Cloudy - 72/63",
-                "Thursday - Asteroids - 75/65",
-                "Friday - Heavy Rain - 65/56",
-                "Saturday - Help Trapped - 60/51",
-                "Sunday - Sunny - 80/68" };
+
         // ListView listView = (ListView) findViewById(R.id.listview);
         // listView.setAdapter(adapter);
 
-        ArrayList<String> forecasts = new ArrayList<String>(Arrays.asList(foreCast));
 
-        this.mForecastAdapter = new ArrayAdapter<String>(getActivity(),R.layout.list_item_forecast,R.id.list_item_forecast_textview,forecasts);
+
+        this.mForecastAdapter = new ArrayAdapter<String>(getActivity()
+                ,R.layout.list_item_forecast,R.id.list_item_forecast_textview
+                ,new ArrayList<String>());
         ListView listView = (ListView) rootView.findViewById(R.id.listView_forecast);
         listView.setAdapter(this.mForecastAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -120,6 +121,20 @@ public class ForecastFragment extends Fragment {
      */
     private String formatHighLows(double high, double low) {
         // For presentation, assume the user doesn't care about tenths of a degree.
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String unit = shared.getString(getString(R.string.pref_units_key),getString(R.string.pref_units_metric));
+
+if(unit.equalsIgnoreCase(getString(R.string.pref_units_imperial))) {
+    high = (high *1.8) + 32;
+    low = (low*1.8) + 32;
+}
+        else if(!unit.equalsIgnoreCase(getString(R.string.pref_units_metric))) {
+            Log.d(LOG_ALL,"unit type not found: "+unit);
+        }
+
+
+
+
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
 
@@ -198,6 +213,7 @@ public class ForecastFragment extends Fragment {
         }
 
          final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
+        this.LOG_ALL = LOG_TAG;
         for (String s : resultStrs) {
             Log.v(LOG_TAG, "Forecast entry: " + s);
         }
@@ -207,7 +223,20 @@ public class ForecastFragment extends Fragment {
 
 
     ///////////////////////////////////////
+    private void updateWeather(){
+        FetchWeatherTask weatherTask = new FetchWeatherTask();
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String location = prefs.getString(getString(R.string.pref_location_key),getString(R.string.pref_location_default));
+
+        weatherTask.execute(location);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
+    }
 
 
    public class FetchWeatherTask extends AsyncTask<String,Void,String[]> {
@@ -289,7 +318,7 @@ public class ForecastFragment extends Fragment {
                 }
 
                 forecastJsonStr = buffer.toString();
-                Log.v(LOG_TAG,"Forecast JSON String: "+forecastJsonStr);
+                //Log.v(LOG_TAG,"Forecast JSON String: "+forecastJsonStr);
                 try {
                     String [] result = getWeatherDataFromJson(forecastJsonStr,numDays);
                     return result;
