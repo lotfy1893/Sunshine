@@ -26,6 +26,8 @@ public class MainActivity extends ActionBarActivity {
                     .add(R.id.container, new ForecastFragment())
                     .commit();
         }
+
+
     }
 
 
@@ -51,6 +53,10 @@ public class MainActivity extends ActionBarActivity {
             return true;
         }
 
+        if (id == R.id.action_map) {
+            openPreferredLocationInMap();
+                    return true;
+                   }
 
 
         return super.onOptionsItemSelected(item);

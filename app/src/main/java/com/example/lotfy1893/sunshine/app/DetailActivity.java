@@ -114,31 +114,34 @@ public class DetailActivity extends ActionBarActivity {
         }
 
         @Override
-        public void onCreateOptionsMenu(Menu menu,MenuInflater inflater) {
-
-                inflater.inflate(R.menu.detailfragment,menu);
-            MenuItem menuItem = menu.findItem(R.id.action_share);
-            ShareActionProvider mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
-
-            if (mForecastStr !=null) {
-                mShareActionProvider.setShareIntent(createShareForecastIntent());
-            }
-            else {
-                Log.d(LOG_TAG,"share action provider is null!");
-            }
+        public void onCreateOptionsMenu(Menu menu,MenuInflater inflater)
+        {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.detailfragment, menu);
 
 
+                MenuItem menuItem = menu.findItem(R.id.action_share);
 
+
+                ShareActionProvider mShareActionProvider =
+                (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+                if (mShareActionProvider != null ) {
+                    mShareActionProvider.setShareIntent(createShareForecastIntent());
+                     }
+                else {
+            Log.d(LOG_TAG, "Share Action Provider is null?");
+                     }
         }
 
 
-
         private Intent createShareForecastIntent(){
-         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-         shareIntent.setType("text/plain");
-         shareIntent.putExtra(Intent.EXTRA_TEXT,mForecastStr+FORECAST_SHARE_HASHTAG);
-         return shareIntent;
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_TEXT,
+                    mForecastStr + FORECAST_SHARE_HASHTAG);
+                 return shareIntent;
      }
 
 
