@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="list_item_icon" type="id" />
+    <item name="list_item_date_textview" type="id" />
+    <item name="list_item_high_textview" type="id" />
+    <item name="list_item_low_textview" type="id" />
+</resources>
