@@ -38,6 +38,8 @@
                 android:value=".MainActivity"/>
 
         </activity>
+        <provider android:authorities="com.example.lotfy1893.sunshine.app"
+            android:name=".data.WeatherProvider"/>
     </application>
 
 </manifest>
